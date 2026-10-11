@@ -31,8 +31,8 @@ export default function AppLayout() {
    );
 
    return (
-      <div className="min-h-screen bg-canvas">
-         <div className="flex w-full gap-3 px-2 py-2 sm:px-3 sm:py-3">
+      <div className="flex h-dvh max-h-dvh overflow-hidden bg-canvas">
+         <div className="flex h-full w-full min-w-0 gap-3 px-2 py-2 sm:px-3 sm:py-3">
             <AppSidebar
                isOpen={menuOpen}
                onClose={() => setMenuOpen(false)}
@@ -40,15 +40,15 @@ export default function AppLayout() {
                onToggleCollapse={() => setCollapsed((c) => !c)}
             />
 
-            <div className="flex min-w-0 flex-1 flex-col gap-3">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden">
                <AppHeader
                   onMenuToggle={() => setMenuOpen((o) => !o)}
                   title={title}
                   subtitle={nav.subtitle}
                />
 
-               <main className="min-w-0 flex-1 pb-4">
-                  <div key={location.pathname} className="animate-fade-up">
+               <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-4">
+                  <div key={location.pathname} className="page-shell animate-fade-up">
                      <Outlet />
                   </div>
                </main>

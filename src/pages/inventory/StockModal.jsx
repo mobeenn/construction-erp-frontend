@@ -24,18 +24,20 @@ export default function StockModal({
    return (
       <div className="flex gap-2">
          <input
+            className="input"
             placeholder="Quantity"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
          />
 
          <input
+            className="input"
             placeholder="Remarks"
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
          />
 
-         <button onClick={submit} className="bg-green-600 text-white px-4">
+         <button type="button" onClick={submit} className="btn btn-primary">
             {type}
          </button>
       </div>

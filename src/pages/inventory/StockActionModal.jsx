@@ -115,17 +115,18 @@ export default function StockActionModal({ actionType, item, onClose, onSuccess 
 
    return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-         <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
-            <div className="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
+         <div className="surface-card max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 shadow-[0_34px_80px_-30px_rgba(16,42,54,0.55)]">
+            <div className="bg-brand-gradient text-[#0d222b] px-6 py-4 flex justify-between items-center">
                <div>
                   <h3 className="text-base font-bold">{getTitle()}</h3>
-                  <p className="text-xs text-slate-300 mt-0.5">
-                     Current Stock: <span className="font-semibold text-white">{item.currentStock || 0}</span> {item.unit} | WH: {item.warehouse?.name || "Default"}
+                  <p className="text-xs text-ink-700/80 mt-0.5">
+                     Current Stock: <span className="font-semibold text-ink-900">{item.currentStock || 0}</span> {item.unit} | WH: {item.warehouse?.name || "Default"}
                   </p>
                </div>
                <button
+                  type="button"
                   onClick={onClose}
-                  className="text-white/80 hover:text-white text-2xl leading-none font-light"
+                  className="btn btn-ghost text-ink-900 text-2xl leading-none font-light px-2 py-1"
                >
                   &times;
                </button>
@@ -133,21 +134,21 @@ export default function StockActionModal({ actionType, item, onClose, onSuccess 
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
                {error && (
-                  <div className="bg-red-50 text-red-700 p-3 rounded-lg text-xs border border-red-200">
+                  <div className="alert alert-error text-xs" role="alert">
                      {error}
                   </div>
                )}
 
                {actionType === "transfer" && (
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Destination Warehouse *
                      </label>
                      <select
                         value={targetWarehouse}
                         onChange={(e) => setTargetWarehouse(e.target.value)}
                         required
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="select"
                      >
                         <option value="">Select Destination Warehouse</option>
                         {warehouses.map((w) => (
@@ -160,7 +161,7 @@ export default function StockActionModal({ actionType, item, onClose, onSuccess 
                )}
 
                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                  <label className="text-label block mb-1">
                      {actionType === "adjustment"
                         ? "Adjustment Quantity Delta (+ / -) *"
                         : `Quantity (${item.unit || "units"}) *`}
@@ -172,17 +173,17 @@ export default function StockActionModal({ actionType, item, onClose, onSuccess 
                      onChange={(e) => setQuantity(e.target.value)}
                      placeholder={actionType === "adjustment" ? "e.g. +10 or -5" : "e.g. 25"}
                      required
-                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                     className="input"
                   />
                   {actionType === "adjustment" && (
-                     <p className="text-[11px] text-gray-500 mt-1">
+                     <p className="text-muted mt-1">
                         Positive adds stock (e.g. 10), negative reduces stock (e.g. -5). Requires admin approval.
                      </p>
                   )}
                </div>
 
                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                  <label className="text-label block mb-1">
                      {actionType === "adjustment" || actionType === "return" ? "Reason *" : "Remarks / Reference"}
                   </label>
                   <textarea
@@ -197,30 +198,22 @@ export default function StockActionModal({ actionType, item, onClose, onSuccess 
                            : "Optional remarks or PO / invoice reference..."
                      }
                      required={actionType === "adjustment" || actionType === "return"}
-                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                     className="textarea"
                   />
                </div>
 
-               <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+               <div className="flex justify-end gap-3 pt-4 border-t border-line">
                   <button
                      type="button"
                      onClick={onClose}
-                     className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                     className="btn btn-secondary"
                   >
                      Cancel
                   </button>
                   <button
                      type="submit"
                      disabled={loading}
-                     className={`px-5 py-2 text-sm font-medium text-white rounded-lg shadow-xs transition-colors disabled:opacity-50 ${
-                        actionType === "stock_in" || actionType === "return"
-                           ? "bg-green-600 hover:bg-green-700"
-                           : actionType === "stock_out"
-                           ? "bg-blue-600 hover:bg-blue-700"
-                           : actionType === "transfer"
-                           ? "bg-indigo-600 hover:bg-indigo-700"
-                           : "bg-purple-600 hover:bg-purple-700"
-                     }`}
+                     className="btn btn-primary"
                   >
                      {loading ? "Processing..." : "Confirm Action"}
                   </button>

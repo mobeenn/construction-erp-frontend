@@ -217,12 +217,12 @@ export function getNavigation(role) {
       case "employee":
          return { title: "Employee Portal", subtitle: "Self service", groups: employeeNav };
       default:
-         return { title: "BuildFlow", subtitle: "Construction ERP", groups: adminNav };
+         return { title: "Build Flow", subtitle: "Construction ERP", groups: adminNav };
    }
 }
 
 export const COMPANY_META = {
-   name: "BuildFlow",
+   name: "Build Flow",
    tagline: "Construction ERP",
 };
 

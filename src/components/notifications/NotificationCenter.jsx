@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
    FiBell,
@@ -8,13 +8,7 @@ import {
    FiX,
    FiTrash2,
 } from "react-icons/fi";
-import {
-   getMyNotifications,
-   getUnreadCount,
-   markAsRead,
-   markAllAsRead,
-   deleteNotification,
-} from "../../services/notificationService";
+import { useNotifications } from "./NotificationContext";
 import { useToast } from "../ui/ToastContext";
 
 const TYPE_META = {
@@ -24,46 +18,28 @@ const TYPE_META = {
    error: { icon: FiX, color: "#E05252", bg: "rgba(224,82,82,0.1)" },
 };
 
+function formatDate(date) {
+   const d = new Date(date);
+   const diff = Date.now() - d;
+   const minutes = Math.floor(diff / 60000);
+   const hours = Math.floor(diff / 3600000);
+   const days = Math.floor(diff / 86400000);
+   if (minutes < 1) return "Just now";
+   if (minutes < 60) return `${minutes}m ago`;
+   if (hours < 24) return `${hours}h ago`;
+   if (days < 7) return `${days}d ago`;
+   return d.toLocaleDateString();
+}
+
 export default function NotificationCenter() {
    const navigate = useNavigate();
    const toast = useToast();
-   const [notifications, setNotifications] = useState([]);
-   const [unreadCount, setUnreadCount] = useState(0);
+   const { items, unreadCount, markRead, markAllRead, remove } = useNotifications();
    const [isOpen, setIsOpen] = useState(false);
-
-   const loadNotifications = useCallback(async () => {
-      try {
-         const res = await getMyNotifications({ limit: 20 });
-         setNotifications(res.data.data || []);
-      } catch {
-         /* silent */
-      }
-   }, []);
-
-   const loadUnreadCount = useCallback(async () => {
-      try {
-         const res = await getUnreadCount();
-         setUnreadCount(res.data.data.count || 0);
-      } catch {
-         /* silent */
-      }
-   }, []);
-
-   const refresh = useCallback(() => {
-      loadNotifications();
-      loadUnreadCount();
-   }, [loadNotifications, loadUnreadCount]);
-
-   useEffect(() => {
-      refresh();
-      const interval = setInterval(refresh, 30000);
-      return () => clearInterval(interval);
-   }, [refresh]);
 
    const handleMarkAsRead = async (id) => {
       try {
-         await markAsRead(id);
-         refresh();
+         await markRead(id);
       } catch {
          toast.error("Could not update notification.");
       }
@@ -71,9 +47,8 @@ export default function NotificationCenter() {
 
    const handleMarkAllAsRead = async () => {
       try {
-         await markAllAsRead();
+         await markAllRead();
          toast.success("All caught up.");
-         refresh();
       } catch {
          toast.error("Could not update notifications.");
       }
@@ -81,24 +56,20 @@ export default function NotificationCenter() {
 
    const handleDelete = async (id) => {
       try {
-         await deleteNotification(id);
-         refresh();
+         await remove(id);
       } catch {
          toast.error("Could not delete notification.");
       }
    };
 
-   const formatDate = (date) => {
-      const d = new Date(date);
-      const diff = Date.now() - d;
-      const minutes = Math.floor(diff / 60000);
-      const hours = Math.floor(diff / 3600000);
-      const days = Math.floor(diff / 86400000);
-      if (minutes < 1) return "Just now";
-      if (minutes < 60) return `${minutes}m ago`;
-      if (hours < 24) return `${hours}h ago`;
-      if (days < 7) return `${days}d ago`;
-      return d.toLocaleDateString();
+   const handleRowClick = async (n) => {
+      if (!n.isRead) {
+         try {
+            await markRead(n._id);
+         } catch {
+            /* keep UI open */
+         }
+      }
    };
 
    return (
@@ -140,7 +111,7 @@ export default function NotificationCenter() {
                   </div>
 
                   <div className="max-h-96 overflow-y-auto">
-                     {notifications.length === 0 ? (
+                     {items.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
                            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-canvas text-ink-400">
                               <FiBell size={20} />
@@ -148,13 +119,22 @@ export default function NotificationCenter() {
                            <p className="text-sm text-ink-500">No notifications</p>
                         </div>
                      ) : (
-                        notifications.map((n) => {
+                        items.map((n) => {
                            const meta = TYPE_META[n.type] || TYPE_META.info;
                            const Icon = meta.icon;
                            return (
                               <div
                                  key={n._id}
-                                 className={`group flex gap-3 border-b border-line px-4 py-3 transition last:border-b-0 hover:bg-canvas ${
+                                 role="button"
+                                 tabIndex={0}
+                                 onClick={() => handleRowClick(n)}
+                                 onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                       e.preventDefault();
+                                       handleRowClick(n);
+                                    }
+                                 }}
+                                 className={`group flex cursor-pointer gap-3 border-b border-line px-4 py-3 transition last:border-b-0 hover:bg-canvas ${
                                     !n.isRead ? "bg-brand-50/40" : ""
                                  }`}
                               >
@@ -180,7 +160,10 @@ export default function NotificationCenter() {
                                        {formatDate(n.createdAt)}
                                     </p>
                                  </div>
-                                 <div className="flex shrink-0 flex-col gap-1 opacity-0 transition group-hover:opacity-100">
+                                 <div
+                                    className="flex shrink-0 flex-col gap-1 opacity-0 transition group-hover:opacity-100"
+                                    onClick={(e) => e.stopPropagation()}
+                                 >
                                     {!n.isRead && (
                                        <button
                                           type="button"

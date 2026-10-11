@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { NavLink } from "react-router-dom";
 import { FiChevronLeft, FiLogOut, FiX } from "react-icons/fi";
 import { useAuth } from "../../auth/AuthContext";
-import { getNavigation, COMPANY_META } from "../../layouts/navigation";
-import { getUnreadCount } from "../../services/notificationService";
+import { getNavigation } from "../../layouts/navigation";
+import { useNotifications } from "../notifications/NotificationContext";
+import logoMark from "../../assets/brand/logo-mark.svg";
+import logoHorizontalOnDark from "../../assets/brand/logo-horizontal-on-dark.svg";
 
 const ROLE_LABELS = {
    admin: "Administrator",
@@ -18,62 +20,29 @@ const ROLE_LABELS = {
 };
 
 export function BrandMark({ compact = false }) {
+   if (compact) {
+      return (
+         <img
+            src={logoMark}
+            alt="Build Flow"
+            className="h-9 w-9 object-contain"
+         />
+      );
+   }
+
    return (
-      <div className="flex items-center gap-3">
-         <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand-gradient shadow-[0_10px_24px_-12px_rgba(87,199,133,0.9)]">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-               <path
-                  d="M4 20V9.5L12 4l8 5.5V20"
-                  stroke="#0d222b"
-                  strokeWidth="2.1"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-               />
-               <path
-                  d="M9.5 20v-6h5v6"
-                  stroke="#0d222b"
-                  strokeWidth="2.1"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-               />
-            </svg>
-         </span>
-         {!compact && (
-            <div className="leading-tight">
-               <p className="font-display text-[1.05rem] font-extrabold tracking-tight text-white">
-                  {COMPANY_META.name}
-               </p>
-               <p className="text-[0.68rem] font-medium tracking-wide text-white/45">
-                  {COMPANY_META.tagline}
-               </p>
-            </div>
-         )}
-      </div>
+      <img
+         src={logoHorizontalOnDark}
+         alt="Build Flow"
+         className="h-8 w-auto max-w-[11.5rem] object-contain object-left"
+      />
    );
 }
 
 export default function AppSidebar({ isOpen = false, onClose = () => {}, onToggleCollapse, collapsed = false }) {
    const { user, logout } = useAuth();
    const nav = useMemo(() => getNavigation(user?.role), [user?.role]);
-   const [unread, setUnread] = useState(0);
-
-   useEffect(() => {
-      let alive = true;
-      const load = async () => {
-         try {
-            const res = await getUnreadCount();
-            if (alive) setUnread(res.data?.data?.count || 0);
-         } catch {
-            /* silent */
-         }
-      };
-      load();
-      const timer = setInterval(load, 60000);
-      return () => {
-         alive = false;
-         clearInterval(timer);
-      };
-   }, []);
+   const { unreadCount: unread } = useNotifications();
 
    const initials = (user?.name || "U")
       .split(" ")
@@ -94,7 +63,7 @@ export default function AppSidebar({ isOpen = false, onClose = () => {}, onToggl
          )}
 
          <aside
-            className={`sidebar-shell fixed inset-y-3 left-3 z-50 flex w-[16.5rem] flex-col overflow-hidden rounded-3xl transition-[transform,width] duration-300 lg:sticky lg:top-3 lg:z-auto lg:h-[calc(100vh-1.5rem)] lg:translate-x-0 ${
+            className={`sidebar-shell fixed inset-y-3 left-3 z-50 flex h-[calc(100dvh-1.5rem)] w-[16.5rem] flex-col overflow-hidden rounded-3xl transition-[transform,width] duration-300 lg:static lg:z-auto lg:h-full lg:translate-x-0 ${
                collapsed ? "lg:w-[5rem]" : ""
             } ${isOpen ? "translate-x-0" : "-translate-x-[120%]"}`}
          >

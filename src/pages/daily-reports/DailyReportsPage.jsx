@@ -307,9 +307,9 @@ export default function DailyReportsPage() {
       <div className="space-y-5">
          <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-               <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">Field operations</p>
-               <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">Site daily reports</h1>
-               <p className="mt-1 text-sm text-slate-500">Daily progress, workforce, materials and site conditions.</p>
+               <p className="text-label text-brand-600">Field operations</p>
+               <h1 className="mt-1 text-page-title">Site daily reports</h1>
+               <p className="mt-1 text-muted">Daily progress, workforce, materials and site conditions.</p>
             </div>
             <div className="flex flex-wrap gap-2">
                <Button variant="secondary" icon={FiRefreshCw} onClick={refresh}>Refresh</Button>
@@ -321,7 +321,7 @@ export default function DailyReportsPage() {
             </div>
          </header>
 
-         {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+         {error && <div role="alert" className="alert alert-error">{error}</div>}
 
          <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
             <KpiCard label="Reports today" value={metrics.reports} icon={FiClipboard} tone="brand" hint="site submissions" />
@@ -388,9 +388,9 @@ export default function DailyReportsPage() {
                   action={<button type="button" onClick={() => addRow("activities", { activity: "", progress: "", quantityCompleted: "", remarks: "" })} className="btn btn-secondary btn-sm">＋ Add row</button>}
                >
                   <div className="space-y-2">
-                     {!form.activities.length && <p className="py-4 text-center text-sm text-slate-500">No activity lines yet. Add the work fronts completed today.</p>}
+                     {!form.activities.length && <p className="py-4 text-center text-sm text-ink-400">No activity lines yet. Add the work fronts completed today.</p>}
                      {form.activities.map((row, index) => (
-                        <div key={`activity-${index}`} className="grid gap-2 rounded-lg border border-slate-200 bg-slate-50/60 p-3 sm:grid-cols-2 lg:grid-cols-6">
+                        <div key={`activity-${index}`} className="grid gap-2 rounded-lg border border-line bg-canvas/60 p-3 sm:grid-cols-2 lg:grid-cols-6">
                            <select aria-label="Project activity" value={row.activity} onChange={(event) => setRow("activities", index, "activity", event.target.value)} className="input lg:col-span-2">
                               <option value="">Select activity</option>
                               {projectActivities.map((activity) => <option key={activity._id} value={activity._id}>{activity.title || activity.name}</option>)}
@@ -405,7 +405,7 @@ export default function DailyReportsPage() {
                               <option value="completed">Completed</option>
                            </select>
                            <div className="flex items-center justify-end">
-                              <button type="button" aria-label="Remove activity row" onClick={() => removeRow("activities", index)} className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-700"><FiTrash2 size={15} /></button>
+                              <button type="button" aria-label="Remove activity row" onClick={() => removeRow("activities", index)} className="grid h-9 w-9 place-items-center rounded-lg text-ink-400 transition hover:bg-[rgba(224,82,82,0.1)] hover:text-[#c23b3b]"><FiTrash2 size={15} /></button>
                            </div>
                            <input aria-label="Activity remarks" placeholder="Activity remarks" value={row.remarks} onChange={(event) => setRow("activities", index, "remarks", event.target.value)} className="input sm:col-span-2 lg:col-span-6" />
                         </div>
@@ -424,7 +424,7 @@ export default function DailyReportsPage() {
                            <div key={`manpower-${index}`} className="grid grid-cols-[minmax(0,1fr)_6rem_auto] items-center gap-2">
                               <input aria-label="Manpower trade" placeholder="Trade / role (e.g. Mason)" value={row.trade} onChange={(event) => setRow("manpower", index, "trade", event.target.value)} className="input min-w-0" />
                               <input aria-label="Number of workers" type="number" min="0" step="1" placeholder="People" value={row.count} onChange={(event) => setRow("manpower", index, "count", event.target.value)} className="input min-w-0" />
-                              <button type="button" aria-label="Remove manpower row" onClick={() => removeRow("manpower", index)} className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-700"><FiTrash2 size={15} /></button>
+                              <button type="button" aria-label="Remove manpower row" onClick={() => removeRow("manpower", index)} className="grid h-9 w-9 place-items-center rounded-lg text-ink-400 transition hover:bg-[rgba(224,82,82,0.1)] hover:text-[#c23b3b]"><FiTrash2 size={15} /></button>
                            </div>
                         ))}
                      </div>
@@ -440,7 +440,7 @@ export default function DailyReportsPage() {
                               <input aria-label="Equipment name" placeholder="Equipment" value={row.name} onChange={(event) => setRow("equipment", index, "name", event.target.value)} className="input col-span-2 min-w-0 sm:col-span-1" />
                               <input aria-label="Equipment quantity" type="number" min="0" step="any" placeholder="Qty" value={row.quantity} onChange={(event) => setRow("equipment", index, "quantity", event.target.value)} className="input min-w-0" />
                               <input aria-label="Equipment hours used" type="number" min="0" step="any" placeholder="Hours" value={row.hours} onChange={(event) => setRow("equipment", index, "hours", event.target.value)} className="input min-w-0" />
-                              <button type="button" aria-label="Remove equipment row" onClick={() => removeRow("equipment", index)} className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-700"><FiTrash2 size={15} /></button>
+                              <button type="button" aria-label="Remove equipment row" onClick={() => removeRow("equipment", index)} className="grid h-9 w-9 place-items-center rounded-lg text-ink-400 transition hover:bg-[rgba(224,82,82,0.1)] hover:text-[#c23b3b]"><FiTrash2 size={15} /></button>
                            </div>
                         ))}
                      </div>
@@ -474,7 +474,7 @@ export default function DailyReportsPage() {
                      {field("Photos and documents (max 8 files, 5 MB each)", (
                         <span>
                            <input type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf,.doc,.docx" onChange={(event) => setFiles(Array.from(event.target.files || []).slice(0, 8))} className="input file:mr-3 file:rounded-md file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:font-medium file:text-brand-700" />
-                           {!!files.length && <span className="mt-1 flex items-center gap-1.5 text-xs text-slate-500"><FiPaperclip size={12} />{files.length} file(s) selected</span>}
+                           {!!files.length && <span className="mt-1 flex items-center gap-1.5 text-xs text-ink-400"><FiPaperclip size={12} />{files.length} file(s) selected</span>}
                         </span>
                      ))}
                   </div>
@@ -549,7 +549,7 @@ export default function DailyReportsPage() {
 }
 
 const field = (label, control) => (
-   <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-slate-700">
+   <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-ink-700">
       <span>{label}</span>
       {control}
    </label>
@@ -580,10 +580,10 @@ function MaterialRows({ name, form, inventory, setRow, removeRow, emptyHint }) {
                   {inventory.map((item) => <option key={item._id} value={item._id}>{item.materialName} · {item.currentStock} {item.unit} available</option>)}
                </select>
                <input aria-label="Material quantity" type="number" min="0" step="any" placeholder="Qty" value={row.quantity} onChange={(event) => setRow(name, index, "quantity", event.target.value)} className="input min-w-0" />
-               <button type="button" aria-label="Remove material row" onClick={() => removeRow(name, index)} className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-700"><FiTrash2 size={15} /></button>
+               <button type="button" aria-label="Remove material row" onClick={() => removeRow(name, index)} className="grid h-9 w-9 place-items-center rounded-lg text-ink-400 transition hover:bg-[rgba(224,82,82,0.1)] hover:text-[#c23b3b]"><FiTrash2 size={15} /></button>
             </div>
          ))}
-         {!inventory.length && <p className="py-2 text-center text-xs text-slate-500">{emptyHint}</p>}
+         {!inventory.length && <p className="py-2 text-center text-xs text-ink-400">{emptyHint}</p>}
       </div>
    );
 }

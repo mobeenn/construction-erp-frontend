@@ -297,7 +297,7 @@ export default function HRManagementPage({ section } = {}) {
             <span>{activeMeta.hint}</span>
          </div>
 
-         {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+         {error && <div role="alert" className="alert alert-error">{error}</div>}
          {notice && <div role="status" className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</div>}
          {loading ? (
             <div className="space-y-4">
@@ -578,7 +578,7 @@ function EmployeeForm({ employee, departments, designations, projects, users, on
    };
    return (
       <form onSubmit={submit} className="space-y-4">
-         {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+         {error && <p role="alert" className="alert alert-error">{error}</p>}
          <FormSection title="Identity">
             {field("Full name *", <input required minLength="3" value={form.name} onChange={(event) => set("name", event.target.value)} className={formInput} />)}
             {field("CNIC *", <input required pattern="[0-9]{5}-[0-9]{7}-[0-9]{1}" placeholder="12345-1234567-1" value={form.cnic} onChange={(event) => set("cnic", event.target.value)} className={formInput} />)}
@@ -690,7 +690,7 @@ function Designations({ designations, departments, run }) {
                         <div>
                            <b className="text-ink-900">{item.title}</b>
                            <span className="ml-2 badge badge-neutral">{item.code}</span>
-                           <small className="ml-2 text-slate-500">{item.department?.name || departments.find((department) => department._id === item.department)?.name || "Unassigned"}{item.level ? ` · ${item.level}` : ""}</small>
+                           <small className="ml-2 text-ink-400">{item.department?.name || departments.find((department) => department._id === item.department)?.name || "Unassigned"}{item.level ? ` · ${item.level}` : ""}</small>
                         </div>
                         <RowActions>
                            <Button variant="secondary" size="sm" icon={FiEdit2} onClick={() => { setEditing(item); setForm({ title: item.title, code: item.code, department: item.department?._id || item.department || "", level: item.level || "", description: item.description || "" }); }}>Edit</Button>
@@ -780,10 +780,10 @@ function Leaves({ requests, employees, projects, user, canManagerReview, run }) 
                               <b className="text-ink-900">{item.employee?.name || "Employee"}</b>
                               <StatusBadge status={item.status} />
                            </div>
-                           <p className="mt-1 text-sm text-slate-600">{item.type} · {item.startDate} to {item.endDate} · {item.days} day(s)</p>
-                           <p className="text-sm text-slate-500">{item.reason} · {item.project?.name || item.employee?.assignedProject?.name || "No project"}</p>
-                           {item.managerReviewNote && <p className="mt-1 text-xs text-slate-500">Manager: {item.managerReviewNote}</p>}
-                           {item.hrReviewNote && <p className="text-xs text-slate-500">HR: {item.hrReviewNote}</p>}
+                           <p className="mt-1 text-sm text-ink-500">{item.type} · {item.startDate} to {item.endDate} · {item.days} day(s)</p>
+                           <p className="text-sm text-ink-400">{item.reason} · {item.project?.name || item.employee?.assignedProject?.name || "No project"}</p>
+                           {item.managerReviewNote && <p className="mt-1 text-xs text-ink-400">Manager: {item.managerReviewNote}</p>}
+                           {item.hrReviewNote && <p className="text-xs text-ink-400">HR: {item.hrReviewNote}</p>}
                         </div>
                      </div>
                      <div className="flex shrink-0 flex-wrap gap-2">
@@ -832,7 +832,7 @@ function SalaryStructures({ employees, structures, departments, run }) {
                   <option value="fixed">Fixed PKR</option>
                   <option value="percentage">% of base</option>
                </select>
-               <button type="button" className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-700" aria-label="Remove line" onClick={() => setLines(lines.filter((_, row) => row !== index))}><FiX size={15} /></button>
+               <button type="button" className="grid h-9 w-9 place-items-center rounded-lg text-ink-400 transition hover:bg-[rgba(224,82,82,0.1)] hover:text-[#c23b3b]" aria-label="Remove line" onClick={() => setLines(lines.filter((_, row) => row !== index))}><FiX size={15} /></button>
             </div>
          ))}
       </div>
@@ -1030,7 +1030,7 @@ function Payslip({ slip, onClose }) {
    if (slip.error) {
       return (
          <Modal isOpen onClose={onClose} title="Salary slip" subtitle="Unable to load this slip.">
-            <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{slip.error}</p>
+            <p role="alert" className="alert alert-error">{slip.error}</p>
             <div className="mt-4 flex justify-end"><Button variant="secondary" onClick={onClose}>Close</Button></div>
          </Modal>
       );
@@ -1088,7 +1088,7 @@ function MyPayslips() {
    }, []);
    return (
       <div className="space-y-4">
-         {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+         {error && <div role="alert" className="alert alert-error">{error}</div>}
          <Panel title="My salary slips" subtitle="Approved payroll history" icon={FiFileText}>
             {loading ? <TableSkeleton rows={4} cols={5} /> : payslips.length ? (
                <TableShell>
@@ -1180,7 +1180,7 @@ function TotalsPanel({ totals = {} }) {
    );
 }
 
-const field = (label, control) => <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-700"><span>{label}</span>{control}</label>;
+const field = (label, control) => <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-700"><span>{label}</span>{control}</label>;
 const select = (value, onChange, options, placeholder) => <select value={value} onChange={onChange} className={formInput}><option value="">{placeholder || "Select…"}</option>{options.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>;
 
 void FiX;

@@ -76,14 +76,15 @@ export default function WarehouseModal({ warehouse, onClose, onSuccess }) {
 
    return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-         <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
-            <div className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-6 py-4 flex justify-between items-center">
+         <div className="surface-card max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 shadow-[0_34px_80px_-30px_rgba(16,42,54,0.55)]">
+            <div className="bg-brand-gradient text-[#0d222b] px-6 py-4 flex justify-between items-center">
                <h3 className="text-lg font-bold">
                   {warehouse ? "Edit Site Warehouse" : "Add New Site Warehouse"}
                </h3>
                <button
+                  type="button"
                   onClick={onClose}
-                  className="text-white/80 hover:text-white text-2xl leading-none font-light"
+                  className="btn btn-ghost text-ink-900 text-2xl leading-none font-light px-2 py-1"
                >
                   &times;
                </button>
@@ -91,14 +92,14 @@ export default function WarehouseModal({ warehouse, onClose, onSuccess }) {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
                {error && (
-                  <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm border border-red-200">
+                  <div className="alert alert-error text-sm" role="alert">
                      {error}
                   </div>
                )}
 
                <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2 sm:col-span-1">
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Warehouse Name *
                      </label>
                      <input
@@ -108,12 +109,12 @@ export default function WarehouseModal({ warehouse, onClose, onSuccess }) {
                         onChange={handleChange}
                         placeholder="e.g. Central Yard A"
                         required
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="input"
                      />
                   </div>
 
                   <div className="col-span-2 sm:col-span-1">
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Warehouse Code
                      </label>
                      <input
@@ -122,13 +123,13 @@ export default function WarehouseModal({ warehouse, onClose, onSuccess }) {
                         value={form.code}
                         onChange={handleChange}
                         placeholder="e.g. WH-001"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="input"
                      />
                   </div>
                </div>
 
                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                  <label className="text-label block mb-1">
                      Location / Site Address
                   </label>
                   <input
@@ -137,20 +138,20 @@ export default function WarehouseModal({ warehouse, onClose, onSuccess }) {
                      value={form.location}
                      onChange={handleChange}
                      placeholder="e.g. Sector 44, Construction Site 2"
-                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                     className="input"
                   />
                </div>
 
                <div className="grid grid-cols-2 gap-4">
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Bound Project
                      </label>
                      <select
                         name="project"
                         value={form.project}
                         onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="select"
                      >
                         <option value="">General (Company Wide)</option>
                         {projects.map((p) => (
@@ -162,14 +163,14 @@ export default function WarehouseModal({ warehouse, onClose, onSuccess }) {
                   </div>
 
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Site / Store Manager
                      </label>
                      <select
                         name="manager"
                         value={form.manager}
                         onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="select"
                      >
                         <option value="">Select Manager</option>
                         {users.map((u) => (
@@ -182,51 +183,51 @@ export default function WarehouseModal({ warehouse, onClose, onSuccess }) {
                </div>
 
                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                  <label className="text-label block mb-1">
                      Status
                   </label>
                   <div className="flex gap-4 items-center mt-1">
-                     <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                     <label className="flex items-center gap-2 text-sm text-ink-700 cursor-pointer">
                         <input
                            type="radio"
                            name="status"
                            value="active"
                            checked={form.status === "active"}
                            onChange={handleChange}
-                           className="text-blue-600"
+                           className="text-brand-500"
                         />
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="badge badge-success">
                            Active
                         </span>
                      </label>
-                     <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                     <label className="flex items-center gap-2 text-sm text-ink-700 cursor-pointer">
                         <input
                            type="radio"
                            name="status"
                            value="inactive"
                            checked={form.status === "inactive"}
                            onChange={handleChange}
-                           className="text-blue-600"
+                           className="text-brand-500"
                         />
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <span className="badge badge-neutral">
                            Inactive
                         </span>
                      </label>
                   </div>
                </div>
 
-               <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+               <div className="flex justify-end gap-3 pt-4 border-t border-line">
                   <button
                      type="button"
                      onClick={onClose}
-                     className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                     className="btn btn-secondary"
                   >
                      Cancel
                   </button>
                   <button
                      type="submit"
                      disabled={loading}
-                     className="px-5 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-xs transition-colors disabled:opacity-50"
+                     className="btn btn-primary"
                   >
                      {loading ? "Saving..." : warehouse ? "Update Warehouse" : "Create Warehouse"}
                   </button>

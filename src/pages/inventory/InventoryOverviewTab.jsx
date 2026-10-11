@@ -27,10 +27,10 @@ export default function InventoryOverviewTab({
       const min = Number(item.minimumStock || 0);
       const reorder = Number(item.reorderLevel || 0);
 
-      if (stock <= 0) return { label: "Out of Stock", color: "bg-red-100 text-red-800 border-red-200", code: "out_of_stock" };
-      if (stock <= min) return { label: "Critical Low", color: "bg-orange-100 text-orange-800 border-orange-200", code: "low" };
-      if (stock <= reorder) return { label: "Reorder Needed", color: "bg-yellow-100 text-yellow-800 border-yellow-200", code: "reorder" };
-      return { label: "Healthy", color: "bg-green-100 text-green-800 border-green-200", code: "healthy" };
+      if (stock <= 0) return { label: "Out of Stock", color: "badge-danger", code: "out_of_stock" };
+      if (stock <= min) return { label: "Critical Low", color: "badge-danger", code: "low" };
+      if (stock <= reorder) return { label: "Reorder Needed", color: "badge-warning", code: "reorder" };
+      return { label: "Healthy", color: "badge-success", code: "healthy" };
    };
 
    const filtered = inventory.filter((item) => {
@@ -76,58 +76,58 @@ export default function InventoryOverviewTab({
       <div className="space-y-6">
          {/* Summary Cards */}
          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-xs">
-               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <div className="surface-card p-5">
+               <p className="text-label">
                   Total Material Items
                </p>
-               <h3 className="text-2xl font-bold text-gray-800 mt-1">{inventory.length}</h3>
-               <p className="text-xs text-gray-400 mt-1">{categories.length} distinct categories</p>
+               <h3 className="text-2xl font-bold text-ink-900 mt-1">{inventory.length}</h3>
+               <p className="text-muted mt-1">{categories.length} distinct categories</p>
             </div>
 
-            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-xs">
-               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <div className="surface-card p-5">
+               <p className="text-label">
                   Total Units in Stock
                </p>
-               <h3 className="text-2xl font-bold text-blue-600 mt-1">
+               <h3 className="text-2xl font-bold text-brand-500 mt-1">
                   {totalUnits.toLocaleString()}
                </h3>
-               <p className="text-xs text-gray-400 mt-1">Across all site warehouses</p>
+               <p className="text-muted mt-1">Across all site warehouses</p>
             </div>
 
-            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-xs">
-               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <div className="surface-card p-5">
+               <p className="text-label">
                   Total Valuation
                </p>
-               <h3 className="text-2xl font-bold text-emerald-600 mt-1">
+               <h3 className="text-2xl font-bold text-mint-600 mt-1">
                   ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                </h3>
-               <p className="text-xs text-gray-400 mt-1">Based on current unit prices</p>
+               <p className="text-muted mt-1">Based on current unit prices</p>
             </div>
 
-            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-xs">
-               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <div className="surface-card p-5">
+               <p className="text-label">
                   Low Stock / Reorder Alerts
                </p>
-               <h3 className="text-2xl font-bold text-orange-600 mt-1">{lowStockCount}</h3>
-               <p className="text-xs text-gray-400 mt-1">Items at or below safety threshold</p>
+               <h3 className="text-2xl font-bold text-[#9a721f] mt-1">{lowStockCount}</h3>
+               <p className="text-muted mt-1">Items at or below safety threshold</p>
             </div>
          </div>
 
          {/* Filters & Search Toolbar */}
-         <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs space-y-3">
+         <div className="surface-card p-4 space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                <input
                   type="text"
                   placeholder="Search material or category..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  className="input"
                />
 
                <select
                   value={selectedWarehouse}
                   onChange={(e) => setSelectedWarehouse(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  className="select"
                >
                   <option value="">All Warehouses</option>
                   {warehouses.map((w) => (
@@ -140,7 +140,7 @@ export default function InventoryOverviewTab({
                <select
                   value={selectedProject}
                   onChange={(e) => setSelectedProject(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  className="select"
                >
                   <option value="">All Projects</option>
                   {projects.map((p) => (
@@ -153,7 +153,7 @@ export default function InventoryOverviewTab({
                <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  className="select"
                >
                   <option value="">All Categories</option>
                   {categories.map((c) => (
@@ -166,7 +166,7 @@ export default function InventoryOverviewTab({
                <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                  className="select"
                >
                   <option value="all">All Stock Statuses</option>
                   <option value="healthy">Healthy Only</option>
@@ -179,19 +179,19 @@ export default function InventoryOverviewTab({
          </div>
 
          {/* Stock Matrix Table */}
-         <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
+         <div className="surface-card overflow-hidden p-0">
             <div className="overflow-x-auto">
-               <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-gray-200 text-gray-600 uppercase font-semibold tracking-wider">
+               <table className="data-table w-full text-xs">
+                  <thead>
                      <tr>
                         <th className="px-4 py-3">Material & Category</th>
                         <th className="px-3 py-3">Warehouse & Site</th>
                         <th className="px-3 py-3">Unit</th>
                         <th className="px-3 py-3 text-right">Opening</th>
-                        <th className="px-3 py-3 text-right text-green-700">Received</th>
-                        <th className="px-3 py-3 text-right text-blue-700">Issued</th>
-                        <th className="px-3 py-3 text-right text-purple-700">Transferred</th>
-                        <th className="px-3 py-3 text-right font-bold text-gray-900">Current Stock</th>
+                        <th className="px-3 py-3 text-right text-mint-600">Received</th>
+                        <th className="px-3 py-3 text-right text-brand-500">Issued</th>
+                        <th className="px-3 py-3 text-right text-ink-700">Transferred</th>
+                        <th className="px-3 py-3 text-right font-bold text-ink-900">Current Stock</th>
                         <th className="px-3 py-3 text-center">Status</th>
                         <th className="px-3 py-3 text-right">Min / Reorder</th>
                         <th className="px-3 py-3 text-right">Unit Price</th>
@@ -200,10 +200,10 @@ export default function InventoryOverviewTab({
                      </tr>
                   </thead>
 
-                  <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                  <tbody className="text-body font-medium">
                      {filtered.length === 0 ? (
                         <tr>
-                           <td colSpan="13" className="px-4 py-12 text-center text-gray-400">
+                           <td colSpan="13" className="px-4 py-12 text-center text-ink-400">
                               No inventory items found matching the selected filters.
                            </td>
                         </tr>
@@ -213,106 +213,109 @@ export default function InventoryOverviewTab({
                            const value = (Number(item.currentStock || 0) * Number(item.unitPrice || 0));
 
                            return (
-                              <tr key={item._id} className="hover:bg-slate-50/80 transition-colors">
+                              <tr key={item._id}>
                                  <td className="px-4 py-3">
-                                    <div className="font-bold text-gray-900 text-sm">{item.materialName}</div>
-                                    <div className="text-[11px] text-gray-500 font-normal">
+                                    <div className="font-bold text-ink-900 text-sm">{item.materialName}</div>
+                                    <div className="text-[11px] text-ink-500 font-normal">
                                        {item.category || "General"}
                                        {item.project?.name ? ` • Prj: ${item.project.name}` : ""}
                                     </div>
                                  </td>
 
                                  <td className="px-3 py-3">
-                                    <div className="font-semibold text-gray-800">
+                                    <div className="font-semibold text-ink-900">
                                        {item.warehouse?.name || "General WH"}
                                     </div>
                                     {item.warehouse?.code && (
-                                       <span className="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                                       <span className="badge badge-neutral text-[10px] font-mono">
                                           {item.warehouse.code}
                                        </span>
                                     )}
                                  </td>
 
-                                 <td className="px-3 py-3 font-mono text-gray-600">{item.unit || "units"}</td>
+                                 <td className="px-3 py-3 font-mono text-ink-700">{item.unit || "units"}</td>
 
-                                 <td className="px-3 py-3 text-right text-gray-500">
+                                 <td className="px-3 py-3 text-right text-ink-500">
                                     {item.openingQuantity || 0}
                                  </td>
 
-                                 <td className="px-3 py-3 text-right text-green-700 font-semibold">
+                                 <td className="px-3 py-3 text-right text-mint-600 font-semibold">
                                     +{item.receivedQuantity || 0}
                                  </td>
 
-                                 <td className="px-3 py-3 text-right text-blue-700 font-semibold">
+                                 <td className="px-3 py-3 text-right text-brand-500 font-semibold">
                                     -{item.issuedQuantity || 0}
                                  </td>
 
-                                 <td className="px-3 py-3 text-right text-purple-700">
+                                 <td className="px-3 py-3 text-right text-ink-700">
                                     {item.transferredQuantity || 0}
                                  </td>
 
-                                 <td className="px-3 py-3 text-right font-bold text-sm text-gray-900">
+                                 <td className="px-3 py-3 text-right font-bold text-sm text-ink-900">
                                     {item.currentStock || 0}
                                  </td>
 
                                  <td className="px-3 py-3 text-center">
-                                    <span
-                                       className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${status.color}`}
-                                    >
+                                    <span className={`badge ${status.color}`}>
                                        {status.label}
                                     </span>
                                  </td>
 
-                                 <td className="px-3 py-3 text-right text-[11px] text-gray-500">
+                                 <td className="px-3 py-3 text-right text-[11px] text-ink-500">
                                     {item.minimumStock || 0} / {item.reorderLevel || 0}
                                  </td>
 
-                                 <td className="px-3 py-3 text-right text-gray-700">
+                                 <td className="px-3 py-3 text-right text-ink-700">
                                     ${Number(item.unitPrice || 0).toFixed(2)}
                                  </td>
 
-                                 <td className="px-3 py-3 text-right font-semibold text-emerald-700">
+                                 <td className="px-3 py-3 text-right font-semibold text-mint-600">
                                     ${value.toFixed(2)}
                                  </td>
 
                                  <td className="px-4 py-3 text-center">
-                                    <div className="flex justify-center items-center gap-1">
+                                    <div className="flex justify-center items-center gap-1 flex-wrap">
                                        <button
+                                          type="button"
                                           title="Stock In"
                                           onClick={() => setActiveModal({ type: "stock_in", item })}
-                                          className="p-1.5 bg-green-50 text-green-700 hover:bg-green-100 rounded text-xs font-semibold"
+                                          className="btn btn-sm bg-mint-50 text-mint-600 hover:bg-mint-50/80"
                                        >
                                           +In
                                        </button>
 
                                        <button
+                                          type="button"
                                           title="Stock Out"
                                           onClick={() => setActiveModal({ type: "stock_out", item })}
-                                          className="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded text-xs font-semibold"
+                                          className="btn btn-sm bg-brand-50 text-brand-500 hover:bg-brand-50/80"
                                        >
                                           -Out
                                        </button>
 
                                        <button
+                                          type="button"
                                           title="Transfer between Sites"
                                           onClick={() => setActiveModal({ type: "transfer", item })}
-                                          className="p-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded text-xs font-semibold"
+                                          className="btn btn-sm btn-secondary"
                                        >
                                           Transfer
                                        </button>
 
                                        <button
+                                          type="button"
                                           title="Request Stock Adjustment"
                                           onClick={() => setActiveModal({ type: "adjustment", item })}
-                                          className="p-1.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded text-xs font-semibold"
+                                          className="btn btn-sm btn-secondary"
                                        >
                                           Adj
                                        </button>
 
                                        <button
+                                          type="button"
                                           title="View Stock Ledger"
                                           onClick={() => onSelectLedgerItem && onSelectLedgerItem(item._id)}
-                                          className="p-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded text-xs font-semibold"
+                                          className="btn btn-sm btn-ghost"
                                        >
                                           Ledger
                                        </button>

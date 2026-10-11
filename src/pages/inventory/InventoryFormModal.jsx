@@ -76,17 +76,18 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
 
    return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-         <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
-            <div className="bg-gradient-to-r from-slate-900 to-blue-900 text-white px-6 py-4 flex justify-between items-center">
+         <div className="surface-card max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 shadow-[0_34px_80px_-30px_rgba(16,42,54,0.55)]">
+            <div className="bg-brand-gradient text-[#0d222b] px-6 py-4 flex justify-between items-center">
                <div>
                   <h3 className="text-lg font-bold">Add New Stock Material</h3>
-                  <p className="text-xs text-slate-300 mt-0.5">
+                  <p className="text-xs text-ink-700/80 mt-0.5">
                      Create and register material in site warehouse inventory
                   </p>
                </div>
                <button
+                  type="button"
                   onClick={onClose}
-                  className="text-white/80 hover:text-white text-2xl leading-none font-light"
+                  className="btn btn-ghost text-ink-900 text-2xl leading-none font-light px-2 py-1"
                >
                   &times;
                </button>
@@ -94,14 +95,14 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
                {error && (
-                  <div className="bg-red-50 text-red-700 p-3 rounded-lg text-xs border border-red-200">
+                  <div className="alert alert-error text-xs" role="alert">
                      {error}
                   </div>
                )}
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Material / Item Name *
                      </label>
                      <input
@@ -111,12 +112,12 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
                         onChange={handleChange}
                         placeholder="e.g. Portland Cement (50kg)"
                         required
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="input"
                      />
                   </div>
 
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Category
                      </label>
                      <input
@@ -125,21 +126,21 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
                         value={form.category}
                         onChange={handleChange}
                         placeholder="e.g. Structural, Masonry, Finishing"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="input"
                      />
                   </div>
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Site Warehouse *
                      </label>
                      <select
                         name="warehouse"
                         value={form.warehouse}
                         onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="select"
                      >
                         <option value="">Select Warehouse / Storage</option>
                         {warehouses.map((w) => (
@@ -151,14 +152,14 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
                   </div>
 
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Associated Project
                      </label>
                      <select
                         name="project"
                         value={form.project}
                         onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="select"
                      >
                         <option value="">General (Company Wide)</option>
                         {projects.map((p) => (
@@ -172,14 +173,14 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
 
                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Unit of Measure *
                      </label>
                      <select
                         name="unit"
                         value={form.unit}
                         onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="select"
                      >
                         <option value="bags">Bags</option>
                         <option value="tons">Tons</option>
@@ -196,7 +197,7 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
                   </div>
 
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Unit Price ($)
                      </label>
                      <input
@@ -206,12 +207,12 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
                         value={form.unitPrice}
                         onChange={handleChange}
                         placeholder="0.00"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="input"
                      />
                   </div>
 
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Opening Quantity
                      </label>
                      <input
@@ -221,12 +222,12 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
                         value={form.openingQuantity}
                         onChange={handleChange}
                         placeholder="0"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="input"
                      />
                   </div>
 
                   <div>
-                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                     <label className="text-label block mb-1">
                         Minimum Stock
                      </label>
                      <input
@@ -236,13 +237,13 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
                         value={form.minimumStock}
                         onChange={handleChange}
                         placeholder="50"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                        className="input"
                      />
                   </div>
                </div>
 
                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                  <label className="text-label block mb-1">
                      Reorder Alert Level
                   </label>
                   <input
@@ -252,25 +253,25 @@ export default function InventoryFormModal({ onClose, onSuccess }) {
                      value={form.reorderLevel}
                      onChange={handleChange}
                      placeholder="100"
-                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                     className="input"
                   />
-                  <p className="text-[11px] text-gray-500 mt-1">
+                  <p className="text-muted mt-1">
                      Triggers automatic reorder warnings when available stock drops to or below this threshold.
                   </p>
                </div>
 
-               <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+               <div className="flex justify-end gap-3 pt-4 border-t border-line">
                   <button
                      type="button"
                      onClick={onClose}
-                     className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                     className="btn btn-secondary"
                   >
                      Cancel
                   </button>
                   <button
                      type="submit"
                      disabled={loading}
-                     className="px-5 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-xs transition-colors disabled:opacity-50"
+                     className="btn btn-primary"
                   >
                      {loading ? "Creating..." : "Save Material to Stock"}
                   </button>

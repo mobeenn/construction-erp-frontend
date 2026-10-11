@@ -1,11 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { FiBell, FiCheck, FiCheckCircle, FiInfo, FiTrash2, FiX, FiAlertTriangle } from "react-icons/fi";
-import {
-   getMyNotifications,
-   markAsRead,
-   markAllAsRead,
-   deleteNotification,
-} from "../../services/notificationService";
+import { useNotifications } from "../../components/notifications/NotificationContext";
 import { useToast } from "../../components/ui/ToastContext";
 import Button from "../../components/ui/Button";
 import { FilterSelect } from "../../components/ui/Controls";
@@ -27,6 +22,7 @@ const TONE_STYLES = {
 
 export default function NotificationsPage() {
    const toast = useToast();
+   const { unreadCount, fetchList, markRead, markAllRead, remove, refresh } = useNotifications();
    const [notifications, setNotifications] = useState([]);
    const [loading, setLoading] = useState(true);
    const [filter, setFilter] = useState("all");
@@ -36,15 +32,14 @@ export default function NotificationsPage() {
       try {
          const params = {};
          if (filter === "unread") params.unreadOnly = true;
-         const res = await getMyNotifications(params);
-         setNotifications(res.data.data || []);
+         const list = await fetchList(params);
+         setNotifications(list);
       } catch (error) {
          toast.error(error.response?.data?.message || "Failed to load notifications.");
       } finally {
          setLoading(false);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [filter]);
+   }, [filter, fetchList, toast]);
 
    useEffect(() => {
       loadNotifications();
@@ -52,8 +47,9 @@ export default function NotificationsPage() {
 
    const handleMarkAsRead = async (id) => {
       try {
-         await markAsRead(id);
+         await markRead(id);
          loadNotifications(false);
+         refresh();
       } catch {
          toast.error("Could not mark notification as read.");
       }
@@ -61,9 +57,10 @@ export default function NotificationsPage() {
 
    const handleMarkAllAsRead = async () => {
       try {
-         await markAllAsRead();
+         await markAllRead();
          toast.success("All notifications marked as read.");
          loadNotifications(false);
+         refresh();
       } catch {
          toast.error("Could not mark all as read.");
       }
@@ -71,7 +68,7 @@ export default function NotificationsPage() {
 
    const handleDelete = async (id) => {
       try {
-         await deleteNotification(id);
+         await remove(id);
          setNotifications((prev) => prev.filter((n) => n._id !== id));
          toast.info("Notification removed.");
       } catch {
@@ -79,10 +76,15 @@ export default function NotificationsPage() {
       }
    };
 
+   const handleRowClick = async (n) => {
+      if (!n.isRead) {
+         await handleMarkAsRead(n._id);
+      }
+   };
+
    const visible = notifications.filter((n) =>
       filter === "read" ? n.isRead : true,
    );
-   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
    return (
       <div className="space-y-4">
@@ -92,8 +94,8 @@ export default function NotificationsPage() {
                   <FiBell size={18} />
                </span>
                <div>
-                  <h2 className="text-[0.95rem] font-bold text-ink-900">Notifications</h2>
-                  <p className="text-xs text-ink-500">
+                  <h2 className="text-section-title">Notifications</h2>
+                  <p className="text-muted">
                      {unreadCount > 0 ? `${unreadCount} unread` : "You're all caught up"}
                   </p>
                </div>
@@ -135,7 +137,16 @@ export default function NotificationsPage() {
                   return (
                      <div
                         key={n._id}
-                        className={`surface-card flex items-start gap-4 p-4 transition hover:shadow-[var(--shadow-card-hover)] ${
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleRowClick(n)}
+                        onKeyDown={(e) => {
+                           if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleRowClick(n);
+                           }
+                        }}
+                        className={`surface-card flex cursor-pointer items-start gap-4 p-4 transition hover:shadow-[var(--shadow-card-hover)] ${
                            !n.isRead ? "border-l-4 border-l-brand-400" : ""
                         }`}
                      >
@@ -150,12 +161,15 @@ export default function NotificationsPage() {
                               </span>
                               {!n.isRead && <span className="badge badge-info">New</span>}
                            </div>
-                           <p className="mt-1 text-sm text-ink-500">{n.message}</p>
-                           <p className="mt-1.5 text-xs text-ink-400">
+                           <p className="mt-1 text-body text-ink-500">{n.message}</p>
+                           <p className="mt-1.5 text-muted">
                               {n.createdAt ? new Date(n.createdAt).toLocaleString() : ""}
                            </p>
                         </div>
-                        <div className="flex shrink-0 items-center gap-1.5">
+                        <div
+                           className="flex shrink-0 items-center gap-1.5"
+                           onClick={(e) => e.stopPropagation()}
+                        >
                            {!n.isRead && (
                               <button
                                  type="button"

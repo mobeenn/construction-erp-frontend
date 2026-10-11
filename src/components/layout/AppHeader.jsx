@@ -34,7 +34,7 @@ export default function AppHeader({
       .toUpperCase();
 
    return (
-      <header className="sticky top-0 z-30 border-b border-line bg-canvas/80 px-4 py-3 backdrop-blur-xl sm:px-6 lg:static lg:rounded-3xl lg:border lg:bg-white/85 lg:shadow-[0_1px_2px_rgba(16,42,54,0.04)]">
+      <header className="sticky top-0 z-30 shrink-0 border-b border-line bg-canvas/90 px-4 py-3 backdrop-blur-xl sm:px-6 lg:rounded-3xl lg:border lg:bg-white/90 lg:shadow-[0_1px_2px_rgba(16,42,54,0.04)]">
          <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
                <button
