@@ -3,7 +3,7 @@ import { FiFileText, FiPlus, FiRefreshCw, FiTrash2 } from "react-icons/fi";
 import { getJournalEntries, createJournalEntry, deleteJournalEntry, getAccounts } from "../../services/accountService";
 import { useToast } from "../../components/ui/ToastContext";
 import { PageHeader } from "../../components/dashboard/widgets";
-import { formatCurrency } from "../../components/charts/Charts";
+import { formatCurrency } from "../../utils/format";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import { SearchInput } from "../../components/ui/Controls";

@@ -8,7 +8,7 @@ import { EmptyState, ErrorState, TableSkeleton } from "../../components/ui/State
 import { TableShell, TableWrap } from "../../components/ui/TableShell";
 import { KpiCard, PageHeader } from "../../components/dashboard/widgets";
 import { useToast } from "../../components/ui/ToastContext";
-import { formatCurrency } from "../../components/charts/Charts";
+import { formatCurrency } from "../../utils/format";
 import {
    getCashAccounts,
    createCashAccount,

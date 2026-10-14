@@ -3,7 +3,7 @@ import { FiBookOpen, FiDownload, FiRefreshCw } from "react-icons/fi";
 import { getGeneralLedger, getAccounts } from "../../services/accountService";
 import { useToast } from "../../components/ui/ToastContext";
 import { PageHeader } from "../../components/dashboard/widgets";
-import { formatCurrency } from "../../components/charts/Charts";
+import { formatCurrency } from "../../utils/format";
 import Button from "../../components/ui/Button";
 import { SearchInput, FilterSelect } from "../../components/ui/Controls";
 import { EmptyState, ErrorState, TableSkeleton } from "../../components/ui/States";

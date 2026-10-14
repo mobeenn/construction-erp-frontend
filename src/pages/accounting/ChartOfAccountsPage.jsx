@@ -9,7 +9,7 @@ import {
 } from "../../services/accountService";
 import { useToast } from "../../components/ui/ToastContext";
 import { PageHeader } from "../../components/dashboard/widgets";
-import { formatCurrency } from "../../components/charts/Charts";
+import { formatCurrency } from "../../utils/format";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import { SearchInput, FilterSelect } from "../../components/ui/Controls";

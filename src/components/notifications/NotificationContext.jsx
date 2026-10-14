@@ -107,8 +107,19 @@ export function NotificationProvider({ children }) {
          return undefined;
       }
       refresh();
-      const interval = setInterval(() => refresh(), 30000);
-      return () => clearInterval(interval);
+      const tick = () => {
+         if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+         refresh();
+      };
+      const interval = setInterval(tick, 30000);
+      const onVisible = () => {
+         if (document.visibilityState === "visible") refresh();
+      };
+      document.addEventListener("visibilitychange", onVisible);
+      return () => {
+         clearInterval(interval);
+         document.removeEventListener("visibilitychange", onVisible);
+      };
    }, [user, refresh]);
 
    const value = useMemo(

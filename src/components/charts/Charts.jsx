@@ -4,37 +4,12 @@ import { ColumnSeries } from "@highcharts/react/series/Column";
 import { LineSeries } from "@highcharts/react/series/Line";
 import { AreaSeries } from "@highcharts/react/series/Area";
 import { VariablePieSeries } from "@highcharts/react/series/VariablePie";
+import { SERIES_COLORS, formatCompact, formatCurrency } from "../../utils/format";
 
-/*
-|--------------------------------------------------------------------------
-| Build Flow chart helpers
-|--------------------------------------------------------------------------
-*/
-export const SERIES_COLORS = [
-   "#2A7B9B",
-   "#57C785",
-   "#EDDD53",
-   "#7DBCCD",
-   "#D9A441",
-   "#23657F",
-   "#E05252",
-   "#4DAF8A",
-];
-
-export function formatCompact(value) {
-   if (value === null || value === undefined || Number.isNaN(Number(value))) return "0";
-   const n = Number(value);
-   const abs = Math.abs(n);
-   const sign = n < 0 ? "-" : "";
-   if (abs >= 1_000_000_000) return `${sign}${(abs / 1_000_000_000).toFixed(1)}B`;
-   if (abs >= 1_000_000) return `${sign}${(abs / 1_000_000).toFixed(abs >= 10_000_000 ? 0 : 1)}M`;
-   if (abs >= 1_000) return `${sign}${(abs / 1_000).toFixed(abs >= 10_000 ? 0 : 1)}K`;
-   return `${sign}${abs.toLocaleString()}`;
-}
-
-export function formatCurrency(value) {
-   return `PKR ${formatCompact(value)}`;
-}
+/* Prefer `utils/format` for new code; re-exports keep existing chart import paths working. */
+/* eslint-disable react-refresh/only-export-components */
+export { SERIES_COLORS, formatCompact, formatCurrency };
+/* eslint-enable react-refresh/only-export-components */
 
 const FONT = {
    chart: "Inter, ui-sans-serif, system-ui, sans-serif",

@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { FiArrowLeft, FiBriefcase, FiDollarSign, FiFileText, FiMail, FiMapPin, FiPhone, FiUser } from "react-icons/fi";
 import { getClient } from "../../services/clientService";
 import { useToast } from "../../components/ui/ToastContext";
-import { formatCurrency } from "../../components/charts/Charts";
+import { formatCurrency } from "../../utils/format";
 import { KpiCard, PageHeader } from "../../components/dashboard/widgets";
 import Button from "../../components/ui/Button";
 import { ErrorState, TableSkeleton } from "../../components/ui/States";
