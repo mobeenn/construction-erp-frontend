@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { FiArrowUpRight, FiChevronRight } from "react-icons/fi";
-import { Sparkline } from "../charts/Charts";
+import { Sparkline } from "../charts/ChartPrimitives";
 
 const TONES = {
    brand: { bg: "bg-brand-50", fg: "text-brand-500" },

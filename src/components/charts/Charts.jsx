@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Chart, XAxis, YAxis, Tooltip, Legend } from "@highcharts/react";
-import { ColumnSeries } from "@highcharts/react/series/Column";
-import { LineSeries } from "@highcharts/react/series/Line";
-import { AreaSeries } from "@highcharts/react/series/Area";
-import { VariablePieSeries } from "@highcharts/react/series/VariablePie";
+import Highcharts from "highcharts";
+import "highcharts/modules/variable-pie";
+import { Chart, setHighcharts } from "@highcharts/react";
 import { SERIES_COLORS, formatCompact, formatCurrency } from "../../utils/format";
+import { ProgressBar, ProgressRing, Sparkline } from "./ChartPrimitives";
 
 /* Prefer `utils/format` for new code; re-exports keep existing chart import paths working. */
 /* eslint-disable react-refresh/only-export-components */
 export { SERIES_COLORS, formatCompact, formatCurrency };
+export { ProgressBar, ProgressRing, Sparkline };
 /* eslint-enable react-refresh/only-export-components */
+
+// Bind one Highcharts instance for the whole app (avoids production class-extends crashes)
+setHighcharts(Highcharts);
 
 const FONT = {
    chart: "Inter, ui-sans-serif, system-ui, sans-serif",
@@ -85,17 +88,8 @@ function baseChartOptions({ height, animation }) {
             pointPadding: 0.08,
          },
          variablepie: {
-            borderWidth: 0,
-            dataLabels: {
-               enabled: true,
-               style: {
-                  fontSize: "11px",
-                  fontWeight: "600",
-                  fontFamily: FONT.chart,
-                  color: "#34474e",
-                  textOutline: "none",
-               },
-            },
+            borderWidth: 2,
+            borderColor: "#ffffff",
          },
          area: {
             fillOpacity: 0.18,
@@ -111,7 +105,7 @@ function baseChartOptions({ height, animation }) {
 
 /*
 |--------------------------------------------------------------------------
-| Line / Area chart
+| Line / Area chart (options-only — no Series class children)
 |--------------------------------------------------------------------------
 */
 export function LineChart({
@@ -124,9 +118,10 @@ export function LineChart({
    valueFormat = formatCompact,
 }) {
    const animation = useOnceAnimation(2500);
+   const seriesType = area ? "areaspline" : curved ? "spline" : "line";
+
    const options = useMemo(() => {
       const base = baseChartOptions({ height, animation });
-      const seriesType = area ? "areaspline" : curved ? "spline" : "line";
       return {
          ...base,
          chart: { ...base.chart, type: seriesType },
@@ -156,39 +151,26 @@ export function LineChart({
                return `<span style="font-weight:600">${head}</span><br/>${rows}`;
             },
          },
+         series: series.map((s, i) => ({
+            type: seriesType,
+            name: s.name,
+            color: s.color || SERIES_COLORS[i % SERIES_COLORS.length],
+            data: s.data || [],
+            fillOpacity: area ? 0.18 : undefined,
+         })),
       };
-   }, [height, animation, labels, showGrid, valueFormat, area, curved]);
-
-   const SeriesComp = area ? AreaSeries : LineSeries;
-   const seriesType = area ? "areaspline" : curved ? "spline" : "line";
+   }, [height, animation, labels, showGrid, valueFormat, area, seriesType, series]);
 
    return (
       <div className="w-full">
-         <Chart options={options} containerProps={{ style: { width: "100%" } }}>
-            <XAxis />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            {series.map((s, i) => (
-               <SeriesComp
-                  key={s.name || i}
-                  name={s.name}
-                  color={s.color || SERIES_COLORS[i % SERIES_COLORS.length]}
-                  data={s.data || []}
-                  options={{
-                     type: seriesType,
-                     fillOpacity: area ? 0.18 : undefined,
-                  }}
-               />
-            ))}
-         </Chart>
+         <Chart options={options} containerProps={{ style: { width: "100%" } }} />
       </div>
    );
 }
 
 /*
 |--------------------------------------------------------------------------
-| Bar / Column chart (Highcharts ColumnSeries)
+| Bar / Column chart
 |--------------------------------------------------------------------------
 */
 export function BarChart({
@@ -200,6 +182,7 @@ export function BarChart({
    horizontal = false,
 }) {
    const animation = useOnceAnimation(2600);
+
    const options = useMemo(() => {
       const base = baseChartOptions({ height, animation });
       const grow = animation
@@ -248,28 +231,19 @@ export function BarChart({
                return `<span style="font-weight:600">${head}</span><br/>${rows}`;
             },
          },
+         series: series.map((s, i) => ({
+            type: "column",
+            name: s.name,
+            color: s.color || SERIES_COLORS[i % SERIES_COLORS.length],
+            data: s.data || [],
+            stacking: stacked ? "normal" : undefined,
+         })),
       };
-   }, [height, animation, labels, valueFormat, stacked, horizontal]);
+   }, [height, animation, labels, valueFormat, stacked, horizontal, series]);
 
    return (
       <div className="w-full">
-         <Chart options={options} containerProps={{ style: { width: "100%" } }}>
-            <XAxis />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            {series.map((s, i) => (
-               <ColumnSeries
-                  key={s.name || i}
-                  name={s.name}
-                  color={s.color || SERIES_COLORS[i % SERIES_COLORS.length]}
-                  data={s.data || []}
-                  options={{
-                     stacking: stacked ? "normal" : undefined,
-                  }}
-               />
-            ))}
-         </Chart>
+         <Chart options={options} containerProps={{ style: { width: "100%" } }} />
       </div>
    );
 }
@@ -302,23 +276,24 @@ export function DonutChart({
       [data],
    );
 
-   const options = useMemo(
-      () => ({
-         ...baseChartOptions({ height: size + 40, animation }),
+   const options = useMemo(() => {
+      const base = baseChartOptions({ height: Math.max(size + 24, 220), animation });
+      return {
+         ...base,
          chart: {
-            ...baseChartOptions({ height: size + 40, animation }).chart,
+            ...base.chart,
             type: "variablepie",
             height: Math.max(size + 24, 220),
          },
          tooltip: {
-            ...baseChartOptions({ height: size, animation }).tooltip,
+            ...base.tooltip,
             pointFormatter() {
                const pct = total > 0 ? ((this.y / total) * 100).toFixed(1) : "0";
                return `<span style="color:${this.color}">●</span> ${this.name}: <b>${valueFormat(this.y)}</b> (${pct}%)`;
             },
          },
          legend: {
-            ...baseChartOptions({ height: size, animation }).legend,
+            ...base.legend,
             align: "right",
             verticalAlign: "middle",
             layout: "vertical",
@@ -330,9 +305,7 @@ export function DonutChart({
                animation: animation
                   ? { duration: 2200, easing: "easeOutQuart" }
                   : false,
-               dataLabels: {
-                  enabled: false,
-               },
+               dataLabels: { enabled: false },
                showInLegend: true,
                size: "100%",
                innerSize: `${Math.min(70, Math.max(40, thickness + 28))}%`,
@@ -345,9 +318,15 @@ export function DonutChart({
             y: 8,
             useHTML: true,
          },
-      }),
-      [animation, size, thickness, total, valueFormat, centerLabel],
-   );
+         series: [
+            {
+               type: "variablepie",
+               name: centerLabel,
+               data: points,
+            },
+         ],
+      };
+   }, [animation, size, thickness, total, valueFormat, centerLabel, points]);
 
    if (!data.length) {
       return (
@@ -359,120 +338,8 @@ export function DonutChart({
 
    return (
       <div className="w-full">
-         <Chart options={options} containerProps={{ style: { width: "100%" } }}>
-            <Tooltip />
-            <Legend />
-            <VariablePieSeries name={centerLabel} data={points} />
-         </Chart>
+         <Chart options={options} containerProps={{ style: { width: "100%" } }} />
       </div>
-   );
-}
-
-/*
-|--------------------------------------------------------------------------
-| Progress ring / bar / sparkline (lightweight custom)
-|--------------------------------------------------------------------------
-*/
-export function ProgressRing({
-   value = 0,
-   size = 120,
-   thickness = 11,
-   label,
-   sublabel,
-   gradientId = "ring-grad",
-}) {
-   const radius = (size - thickness) / 2;
-   const circumference = 2 * Math.PI * radius;
-   const pct = Math.max(0, Math.min(100, value));
-   const dash = (pct / 100) * circumference;
-   const center = size / 2;
-   const gid = `${gradientId}-${Math.round(size)}-${Math.round(pct)}`;
-
-   return (
-      <div className="relative grid place-items-center" style={{ width: size, height: size }}>
-         <svg width={size} height={size} className="-rotate-90">
-            <defs>
-               <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#2A7B9B" />
-                  <stop offset="55%" stopColor="#57C785" />
-                  <stop offset="100%" stopColor="#EDDD53" />
-               </linearGradient>
-            </defs>
-            <circle cx={center} cy={center} r={radius} fill="none" stroke="#E9F1EE" strokeWidth={thickness} />
-            <circle
-               cx={center}
-               cy={center}
-               r={radius}
-               fill="none"
-               stroke={`url(#${gid})`}
-               strokeWidth={thickness}
-               strokeLinecap="round"
-               strokeDasharray={`${dash} ${circumference - dash}`}
-               style={{ transition: "stroke-dasharray .9s cubic-bezier(.22,1,.36,1)" }}
-            />
-         </svg>
-         <div className="absolute flex flex-col items-center">
-            <span className="font-display text-lg font-extrabold text-ink-900">
-               {label ?? `${Math.round(pct)}%`}
-            </span>
-            {sublabel && (
-               <span className="text-[0.65rem] font-medium uppercase tracking-wide text-ink-400">
-                  {sublabel}
-               </span>
-            )}
-         </div>
-      </div>
-   );
-}
-
-export function ProgressBar({ value = 0, color = "#2A7B9B", gradient = false, height = 8, label }) {
-   const pct = Math.max(0, Math.min(100, value));
-   return (
-      <div className="w-full">
-         {label && (
-            <div className="mb-1.5 flex items-center justify-between text-[0.7rem] font-medium text-ink-500">
-               <span>{label}</span>
-               <span className="font-semibold text-ink-700">{Math.round(pct)}%</span>
-            </div>
-         )}
-         <div className="w-full overflow-hidden rounded-full bg-[#E9F1EE]" style={{ height }}>
-            <div
-               className={gradient ? "bg-brand-gradient h-full rounded-full" : "h-full rounded-full"}
-               style={{
-                  width: `${pct}%`,
-                  background: gradient ? undefined : color,
-                  transition: "width .9s cubic-bezier(.22,1,.36,1)",
-               }}
-            />
-         </div>
-      </div>
-   );
-}
-
-export function Sparkline({ data = [], color = "#2A7B9B", width = 96, height = 32 }) {
-   const max = Math.max(...data, 1);
-   const min = Math.min(...data, 0);
-   const range = max - min || 1;
-   const pts = data.map((v, i) => {
-      const x = (i / Math.max(data.length - 1, 1)) * width;
-      const y = height - ((v - min) / range) * (height - 4) - 2;
-      return [x, y];
-   });
-   const line = pts.map(([x, y], i) => (i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`)).join(" ");
-   const area = `${line} L ${width} ${height} L 0 ${height} Z`;
-   const id = `spark-${color.replace("#", "")}-${data.length}`;
-
-   return (
-      <svg width={width} height={height} className="overflow-visible">
-         <defs>
-            <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-               <stop offset="0%" stopColor={color} stopOpacity="0.28" />
-               <stop offset="100%" stopColor={color} stopOpacity="0" />
-            </linearGradient>
-         </defs>
-         <path d={area} fill={`url(#${id})`} />
-         <path d={line} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
    );
 }
 
