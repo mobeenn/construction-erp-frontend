@@ -38,6 +38,45 @@ export function TableSkeleton({ rows = 6, cols = 5 }) {
    );
 }
 
+/** Content-area skeleton while a lazy page chunk loads (layout stays mounted). */
+export function PageContentSkeleton() {
+   return (
+      <div className="space-y-4">
+         <div className="skeleton h-10 w-64 max-w-full rounded-xl" />
+         <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+               <div key={i} className="skeleton h-24 rounded-3xl" />
+            ))}
+         </div>
+         <TableSkeleton rows={6} cols={5} />
+      </div>
+   );
+}
+
+/** Full-shell skeleton for auth gate before AppLayout mounts. */
+export function AuthShellSkeleton() {
+   return (
+      <div className="flex h-dvh max-h-dvh overflow-hidden bg-canvas">
+         <div className="flex h-full w-full min-w-0 gap-3 px-2 py-2 sm:px-3 sm:py-3">
+            <div className="hidden h-full w-64 shrink-0 flex-col gap-3 rounded-3xl bg-white p-4 shadow-sm md:flex">
+               <div className="skeleton h-9 w-36 rounded-xl" />
+               <div className="mt-4 space-y-2">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                     <div key={i} className="skeleton h-8 w-full rounded-xl" />
+                  ))}
+               </div>
+            </div>
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden">
+               <div className="skeleton h-14 w-full rounded-2xl" />
+               <div className="min-h-0 flex-1 overflow-hidden p-1">
+                  <PageContentSkeleton />
+               </div>
+            </div>
+         </div>
+      </div>
+   );
+}
+
 export function EmptyState({
    icon: Icon = FiInbox,
    title = "Nothing here yet",

@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useRef } from "react";
-import Highcharts from "highcharts";
-import "highcharts/modules/variable-pie";
-import { Chart, setHighcharts } from "@highcharts/react";
 import { SERIES_COLORS, formatCompact, formatCurrency } from "../../utils/format";
 import { ProgressBar, ProgressRing, Sparkline } from "./ChartPrimitives";
+import HighchartsHost from "./HighchartsHost";
 
 /* Prefer `utils/format` for new code; re-exports keep existing chart import paths working. */
 /* eslint-disable react-refresh/only-export-components */
 export { SERIES_COLORS, formatCompact, formatCurrency };
 export { ProgressBar, ProgressRing, Sparkline };
 /* eslint-enable react-refresh/only-export-components */
-
-// Bind one Highcharts instance for the whole app (avoids production class-extends crashes)
-setHighcharts(Highcharts);
 
 const FONT = {
    chart: "Inter, ui-sans-serif, system-ui, sans-serif",
@@ -163,7 +158,7 @@ export function LineChart({
 
    return (
       <div className="w-full">
-         <Chart options={options} containerProps={{ style: { width: "100%" } }} />
+         <HighchartsHost options={options} />
       </div>
    );
 }
@@ -243,7 +238,7 @@ export function BarChart({
 
    return (
       <div className="w-full">
-         <Chart options={options} containerProps={{ style: { width: "100%" } }} />
+         <HighchartsHost options={options} />
       </div>
    );
 }
@@ -338,7 +333,7 @@ export function DonutChart({
 
    return (
       <div className="w-full">
-         <Chart options={options} containerProps={{ style: { width: "100%" } }} />
+         <HighchartsHost options={options} />
       </div>
    );
 }

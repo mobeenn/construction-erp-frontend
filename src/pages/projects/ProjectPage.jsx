@@ -17,7 +17,7 @@ import Modal from "../../components/ui/Modal";
 import { SearchInput, FilterSelect } from "../../components/ui/Controls";
 import { EmptyState, ErrorState, TableSkeleton } from "../../components/ui/States";
 import StatusBadge from "../../components/ui/StatusBadge";
-import { ProgressBar } from "../../components/charts/Charts";
+import { ProgressBar } from "../../components/charts/ChartPrimitives";
 import { TableHead, TableShell, TableWrap, Avatar, RowActions } from "../../components/ui/TableShell";
 import ProjectForm from "./ProjectForm";
 import { formatMoney } from "../../utils/format";

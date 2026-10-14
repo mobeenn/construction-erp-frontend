@@ -53,7 +53,8 @@ import {
 import { getUsersApi } from "../../api/users.api";
 import AttendancePage from "../attendance/AttendancePage";
 import { useToast } from "../../components/ui/ToastContext";
-import { BarChart, DonutChart, formatCurrency } from "../../components/charts/Charts";
+import { BarChart, DonutChart } from "../../components/charts/Charts";
+import { formatCurrency } from "../../utils/format";
 import { ChartCard, Hero, KpiCard, ViewAllLink } from "../../components/dashboard/widgets";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
@@ -123,35 +124,58 @@ export default function HRManagementPage({ section } = {}) {
    const sectionBase = user?.role === "admin" ? "/hr-management" : "/hr";
 
    const load = useCallback(async () => {
-      const [projectRes, employeeRes] = await Promise.all([
-         getProjects(),
-         isHR ? getEmployees(1, 1000, search) : Promise.resolve(null),
-      ]);
-      const data = { employees: employeeRes ? apiData(employeeRes) : [], projects: apiData(projectRes) };
-      if (isHR) {
-         const [departmentRes, designationRes, leaveRes, salaryRes, periodRes] = await Promise.all([
-            getDepartments(), getDesignations(), getLeaveRequests(), getSalaryStructures(),
-            getPayrollPeriods(),
-         ]);
-         data.departments = apiData(departmentRes);
-         data.designations = apiData(designationRes);
-         data.leaveRequests = apiData(leaveRes);
-         data.salaryStructures = apiData(salaryRes);
-         data.periods = apiData(periodRes);
-         // User directory (department heads, portal accounts) is auxiliary:
-         // it must never fail the whole HR workspace if access is restricted.
-         try {
-            data.users = apiData(await getUsersApi({ limit: 1000 }));
-         } catch {
-            data.users = [];
-         }
+      const needsOverview =
+         path === sectionBase ||
+         path === "/hr" ||
+         path === "/hr-management" ||
+         path.endsWith("/hr-management/");
+      const needsEmployees = isHR && (needsOverview || path.endsWith("/employees"));
+      const needsDirectory = isHR && (needsOverview || path.endsWith("/departments") || path.endsWith("/designations") || path.endsWith("/employees"));
+      const needsLeaves =
+         needsOverview ||
+         path.endsWith("/leaves") ||
+         path.includes("manager-leaves");
+      const needsPayroll =
+         isHR &&
+         (needsOverview ||
+            path.endsWith("/salary") ||
+            path.endsWith("/payroll") ||
+            path.endsWith("/reports") ||
+            path.includes("payslips"));
+
+      const tasks = {
+         projects: getProjects(),
+      };
+
+      if (!isHR) {
+         tasks.leaveRequests = getLeaveRequests();
+         tasks.leaveEmployees = getLeaveEmployees();
       } else {
-         const [leaveRes, leaveEmployeeRes] = await Promise.all([getLeaveRequests(), getLeaveEmployees()]);
-         data.leaveRequests = apiData(leaveRes);
-         data.employees = apiData(leaveEmployeeRes);
+         if (needsEmployees || needsOverview) tasks.employees = getEmployees(1, 1000, search);
+         if (needsDirectory || needsOverview) {
+            tasks.departments = getDepartments();
+            tasks.designations = getDesignations();
+         }
+         if (needsLeaves || needsOverview) tasks.leaveRequests = getLeaveRequests();
+         if (needsPayroll || needsOverview) {
+            tasks.salaryStructures = getSalaryStructures();
+            tasks.periods = getPayrollPeriods();
+         }
+         if (needsDirectory || needsOverview) tasks.users = getUsersApi({ limit: 1000 });
       }
+
+      const keys = Object.keys(tasks);
+      const settled = await Promise.allSettled(keys.map((k) => tasks[k]));
+      const data = { employees: [], projects: [], departments: [], designations: [], leaveRequests: [], salaryStructures: [], periods: [], users: [] };
+      keys.forEach((key, i) => {
+         const result = settled[i];
+         if (result.status !== "fulfilled") return;
+         const value = apiData(result.value);
+         if (key === "leaveEmployees") data.employees = value;
+         else data[key] = value;
+      });
       return data;
-   }, [isHR, search]);
+   }, [isHR, search, path, sectionBase]);
 
    const applyData = useCallback((data) => {
       setError("");
@@ -275,7 +299,7 @@ export default function HRManagementPage({ section } = {}) {
                   ? user?.role === "employee" ? "/employee/leaves" : "/manager-leaves"
                   : href === "/employee/payslips" ? href
                   : isHR ? href.replace(/^\/hr/, sectionBase) : href;
-               const active = path === destination || (path === "/manager-leaves" && href === "/hr/leaves");
+               const active = path === destination || ((path === "/manager-leaves" || path === "/site-supervisor/manager-leaves") && href === "/hr/leaves");
                const Icon = (SECTION_META[title] || {}).icon || FiGrid;
                return (
                   <Link
@@ -313,6 +337,7 @@ export default function HRManagementPage({ section } = {}) {
                   leaveRequests={leaveRequests} leaveCount={pendingLeaves} activePayroll={activePayroll}
                   periods={periods} salaryStructures={salaryStructures} onReport={openReport} report={report}
                   sectionBase={sectionBase}
+                  user={user}
                />
             )}
             {isEmployeeRoute && isHR && <Employees employees={shownEmployees} departments={departments} designations={designations} projects={projects} users={users} search={search} setSearch={setSearch} run={run} open={formOpen} setOpen={setFormOpen} />}
@@ -340,7 +365,7 @@ function HeroMini({ label, value }) {
 
 const apiData = (response) => response.data?.data || [];
 
-function Dashboard({ employees, departments, designations, leaveRequests, leaveCount, activePayroll, periods, salaryStructures, onReport, report, sectionBase }) {
+function Dashboard({ employees, departments, designations, leaveRequests, leaveCount, activePayroll, periods, salaryStructures, onReport, report, sectionBase, user }) {
    const activeEmployees = employees.filter((employee) => employee.status === "active").length;
    const monthNet = activePayroll?.totals?.netSalary || report?.totals?.netSalary || 0;
 
@@ -365,9 +390,9 @@ function Dashboard({ employees, departments, designations, leaveRequests, leaveC
 
    const shortcuts = [
       { title: "Employees", href: `${sectionBase}/employees`, desc: "Directory, profiles and assignments", icon: FiUsers },
-      { title: "Attendance", href: "/hr/attendance", desc: "Daily registers and overtime", icon: FiActivity },
+      { title: "Attendance", href: user?.role === "admin" ? "/attendance" : "/hr/attendance", desc: "Daily registers and overtime", icon: FiActivity },
       { title: "Leave", href: `${sectionBase}/leaves`, desc: `${leaveCount} decisions waiting`, icon: FiCalendar },
-      { title: "Payroll", href: `${sectionBase === "/hr-management" ? "/hr/payroll" : "/hr/payroll"}`, desc: activePayroll ? `${activePayroll.name} · ${activePayroll.status}` : "Create the monthly cycle", icon: FiDollarSign },
+      { title: "Payroll", href: `${sectionBase}/payroll`, desc: activePayroll ? `${activePayroll.name} · ${activePayroll.status}` : "Create the monthly cycle", icon: FiDollarSign },
    ];
 
    return (

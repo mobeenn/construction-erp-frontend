@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
    FiBell,
@@ -34,8 +34,12 @@ function formatDate(date) {
 export default function NotificationCenter() {
    const navigate = useNavigate();
    const toast = useToast();
-   const { items, unreadCount, markRead, markAllRead, remove } = useNotifications();
+   const { items, unreadCount, refresh, markRead, markAllRead, remove } = useNotifications();
    const [isOpen, setIsOpen] = useState(false);
+
+   useEffect(() => {
+      if (isOpen) refresh({ limit: 20 });
+   }, [isOpen, refresh]);
 
    const handleMarkAsRead = async (id) => {
       try {

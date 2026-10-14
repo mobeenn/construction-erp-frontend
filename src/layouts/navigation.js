@@ -187,7 +187,7 @@ const supervisorNav = [
       items: [
          { label: "Daily Reports", to: "/site-supervisor", icon: FiClipboard, end: true },
          { label: "Projects", to: "/site-supervisor/projects", icon: FiLayers },
-         { label: "Leave Review", to: "/manager-leaves", icon: FiUserCheck },
+         { label: "Leave Review", to: "/site-supervisor/manager-leaves", icon: FiUserCheck },
       ],
    },
 ];

@@ -12,6 +12,8 @@ import { getPurchaseOrders } from "../../services/purchaseOrderService";
 import Modal from "../ui/Modal";
 
 const readList = (res) => res?.data?.data || [];
+const SEARCH_CACHE_TTL_MS = 60_000;
+let searchCache = { at: 0, data: null };
 
 export default function GlobalSearch() {
    const { user } = useAuth();
@@ -43,6 +45,15 @@ export default function GlobalSearch() {
          return;
       }
       let active = true;
+      const apply = (payload) => {
+         if (!active) return;
+         setData(payload);
+         setLoading(false);
+      };
+      if (searchCache.data && Date.now() - searchCache.at < SEARCH_CACHE_TTL_MS) {
+         apply(searchCache.data);
+         return () => { active = false; };
+      }
       setLoading(true);
       Promise.allSettled([
          getProjects(),
@@ -57,15 +68,16 @@ export default function GlobalSearch() {
             r.status === "fulfilled" ? readList(r.value) : [],
          );
          const empList = Array.isArray(employees) ? employees : readList(employees) || employees?.employees || [];
-         setData({
+         const payload = {
             projects: Array.isArray(projects) ? projects : [],
             clients: Array.isArray(clients) ? clients : [],
             vendors: Array.isArray(vendors) ? vendors : [],
             employees: Array.isArray(empList) ? empList : [],
             materials: Array.isArray(inventory) ? inventory : [],
             orders: Array.isArray(orders) ? orders : [],
-         });
-         setLoading(false);
+         };
+         searchCache = { at: Date.now(), data: payload };
+         apply(payload);
       });
       return () => { active = false; };
    }, [open ]);

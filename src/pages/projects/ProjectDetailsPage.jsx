@@ -47,7 +47,9 @@ import { SearchInput, FilterSelect } from "../../components/ui/Controls";
 import { EmptyState, ErrorState, TableSkeleton } from "../../components/ui/States";
 import { TableShell, TableWrap, Avatar, RowActions } from "../../components/ui/TableShell";
 import { Hero, KpiCard, ChartCard, ViewAllLink } from "../../components/dashboard/widgets";
-import { BarChart, DonutChart, ProgressBar, formatCurrency } from "../../components/charts/Charts";
+import { BarChart, DonutChart } from "../../components/charts/Charts";
+import { ProgressBar } from "../../components/charts/ChartPrimitives";
+import { formatCurrency } from "../../utils/format";
 import { useToast } from "../../components/ui/ToastContext";
 import { formatMoney } from "../../utils/format";
 
@@ -151,9 +153,8 @@ export default function ProjectDetailsPage() {
    const load = async () => {
       setLoadError(false);
       try {
-         const p = await getProject(id);
+         const [p, d] = await Promise.all([getProject(id), getProjectDashboard(id)]);
          setProject(p.data.data);
-         const d = await getProjectDashboard(id);
          setDash(d.data.data);
       } catch (err) {
          setLoadError(true);
@@ -747,10 +748,14 @@ function Progress({ projectId }) {
    const load = async (silent = false) => {
       if (!silent) setLoading(true);
       try {
-         const d = await getProgressDashboard(projectId);
+         const [d, updatesRes, activitiesRes] = await Promise.all([
+            getProgressDashboard(projectId),
+            getProgressUpdates(projectId),
+            getActivities(`?project=${projectId}`),
+         ]);
          setDash(d.data.data);
-         setUpdates((await getProgressUpdates(projectId)).data.data || []);
-         setActivities((await getActivities(`?project=${projectId}`)).data.data || []);
+         setUpdates(updatesRes.data.data || []);
+         setActivities(activitiesRes.data.data || []);
       } catch (err) {
          toast.error(err.response?.data?.message || "Could not load progress.");
       } finally {

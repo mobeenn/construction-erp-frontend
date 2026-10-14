@@ -18,14 +18,9 @@ import {
 import { getDashboardAnalyticsApi } from "../api/dashboard.api";
 import { useAuth } from "../auth/AuthContext";
 import { useToast } from "../components/ui/ToastContext";
-import {
-   BarChart,
-   DonutChart,
-   LineChart,
-   ProgressBar,
-   formatCompact,
-   formatCurrency,
-} from "../components/charts/Charts";
+import { BarChart, DonutChart, LineChart } from "../components/charts/Charts";
+import { ProgressBar } from "../components/charts/ChartPrimitives";
+import { formatCompact, formatCurrency } from "../utils/format";
 import { ChartCard, Hero, KpiCard, ListRow, ViewAllLink } from "../components/dashboard/widgets";
 import { ErrorState } from "../components/ui/States";
 

@@ -3,7 +3,8 @@ import { FiCheckCircle, FiPieChart, FiRefreshCw, FiXCircle } from "react-icons/f
 import { getTrialBalance } from "../../services/accountService";
 import { useToast } from "../../components/ui/ToastContext";
 import { PageHeader, KpiCard } from "../../components/dashboard/widgets";
-import { DonutChart, formatCurrency } from "../../components/charts/Charts";
+import { DonutChart } from "../../components/charts/Charts";
+import { formatCurrency } from "../../utils/format";
 import { ChartCard } from "../../components/dashboard/widgets";
 import Button from "../../components/ui/Button";
 import { SearchInput } from "../../components/ui/Controls";

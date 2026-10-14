@@ -4,7 +4,7 @@ import Tabs from "../../components/ui/Tabs";
 import Button from "../../components/ui/Button";
 import { SearchInput } from "../../components/ui/Controls";
 import { TableShell, TableWrap } from "../../components/ui/TableShell";
-import { EmptyState } from "../../components/ui/States";
+import { EmptyState, TableSkeleton } from "../../components/ui/States";
 import { KpiCard, PageHeader } from "../../components/dashboard/widgets";
 import { useToast } from "../../components/ui/ToastContext";
 import { formatCurrency } from "../../utils/format";
@@ -80,7 +80,9 @@ export default function ProjectAllocationsPage() {
             ]}
          />
 
-         {allocation ? (
+         {loading ? (
+            <TableSkeleton rows={6} cols={5} />
+         ) : allocation ? (
             <>
                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <KpiCard

@@ -1,8 +1,9 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "../auth/ProtectedRoute";
+import { ADMIN_WORKSPACE_ROLES } from "../auth/roleHomes";
 import AppLayout from "../layouts/AppLayout";
-import { PageLoader } from "../components/ui/States";
+import { PageContentSkeleton } from "../components/ui/States";
 
 const Login = lazy(() => import("../pages/Login"));
 const Forbidden = lazy(() => import("../pages/Forbidden"));
@@ -49,22 +50,31 @@ const DocumentsPage = lazy(() => import("../pages/documents/DocumentsPage"));
 const NotificationsPage = lazy(() => import("../pages/notifications/NotificationsPage"));
 const RoleDashboard = lazy(() => import("../pages/RoleDashboard"));
 
-function LazyPage({ children }) {
-   return <Suspense fallback={<PageLoader />}>{children}</Suspense>;
-}
-
 export default function AppRouter() {
    return (
-      <LazyPage>
          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/forbidden" element={<Forbidden />} />
+            <Route
+               path="/login"
+               element={
+                  <Suspense fallback={<PageContentSkeleton />}>
+                     <Login />
+                  </Suspense>
+               }
+            />
+            <Route
+               path="/forbidden"
+               element={
+                  <Suspense fallback={<PageContentSkeleton />}>
+                     <Forbidden />
+                  </Suspense>
+               }
+            />
 
-            {/* Admin / general workspace */}
+            {/* Admin / management workspace */}
             <Route
                path="/"
                element={
-                  <ProtectedRoute>
+                  <ProtectedRoute roles={ADMIN_WORKSPACE_ROLES}>
                      <AppLayout />
                   </ProtectedRoute>
                }
@@ -184,9 +194,10 @@ export default function AppRouter() {
             >
                <Route index element={<DailyReportsPage />} />
                <Route path="projects" element={<SupervisorProjectPage />} />
+               <Route path="manager-leaves" element={<HRManagementPage />} />
             </Route>
 
-            {/* Employee self-service portal (uses general layout) */}
+            {/* Employee self-service portal */}
             <Route
                path="/employee"
                element={
@@ -195,10 +206,12 @@ export default function AppRouter() {
                   </ProtectedRoute>
                }
             >
+               <Route index element={<Navigate to="leaves" replace />} />
                <Route path="leaves" element={<HRManagementPage section="leaves" />} />
                <Route path="payslips" element={<HRManagementPage section="payroll" />} />
             </Route>
+
+            <Route path="*" element={<Navigate to="/forbidden" replace />} />
          </Routes>
-      </LazyPage>
    );
 }

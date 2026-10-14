@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { FiArrowLeft, FiLock } from "react-icons/fi";
+import { useAuth } from "../auth/AuthContext";
+import { roleHome } from "../auth/roleHomes";
 
 export default function Forbidden() {
+   const { user } = useAuth();
+   const home = user ? roleHome(user.role) : "/login";
+
    return (
       <div className="flex min-h-screen items-center justify-center bg-canvas p-6">
          <div className="surface-card w-full max-w-md p-8 text-center">
@@ -15,7 +20,7 @@ export default function Forbidden() {
                You don't have permission to view this page. Contact your administrator
                if you believe this is a mistake.
             </p>
-            <Link to="/" className="btn btn-primary mt-6 inline-flex">
+            <Link to={home} className="btn btn-primary mt-6 inline-flex">
                <FiArrowLeft size={16} />
                Back to dashboard
             </Link>

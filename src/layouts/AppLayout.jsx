@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { getNavigation } from "./navigation";
 import AppSidebar from "../components/layout/AppSidebar";
 import AppHeader from "../components/layout/AppHeader";
+import { PageContentSkeleton } from "../components/ui/States";
 
 function resolveTitle(nav, pathname) {
    const items = nav.groups.flatMap((g) => g.items);
@@ -49,7 +50,9 @@ export default function AppLayout() {
 
                <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-4">
                   <div key={location.pathname} className="page-shell animate-fade-up">
-                     <Outlet />
+                     <Suspense fallback={<PageContentSkeleton />}>
+                        <Outlet />
+                     </Suspense>
                   </div>
                </main>
             </div>

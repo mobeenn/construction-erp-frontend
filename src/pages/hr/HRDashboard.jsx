@@ -13,12 +13,8 @@ import { getDashboardAnalyticsApi } from "../../api/dashboard.api";
 import { getLeaveRequests } from "../../services/employeeService";
 import { useAuth } from "../../auth/AuthContext";
 import { useToast } from "../../components/ui/ToastContext";
-import {
-   BarChart,
-   DonutChart,
-   LineChart,
-   formatCompact,
-} from "../../components/charts/Charts";
+import { BarChart, DonutChart, LineChart } from "../../components/charts/Charts";
+import { formatCompact } from "../../utils/format";
 import { ChartCard, Hero, KpiCard, ListRow, ViewAllLink } from "../../components/dashboard/widgets";
 import { ErrorState } from "../../components/ui/States";
 import StatusBadge from "../../components/ui/StatusBadge";

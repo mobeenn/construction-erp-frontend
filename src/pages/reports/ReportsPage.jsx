@@ -15,7 +15,8 @@ import {
    getProjectReport,
 } from "../../services/reportService";
 import { useToast } from "../../components/ui/ToastContext";
-import { BarChart, DonutChart, formatCompact, formatCurrency } from "../../components/charts/Charts";
+import { BarChart, DonutChart } from "../../components/charts/Charts";
+import { formatCompact, formatCurrency } from "../../utils/format";
 import { ChartCard, KpiCard, PageHeader } from "../../components/dashboard/widgets";
 import Button from "../../components/ui/Button";
 import { SearchInput } from "../../components/ui/Controls";

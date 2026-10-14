@@ -4,6 +4,7 @@ import {
    useContext,
    useEffect,
    useMemo,
+   useRef,
    useState,
 } from "react";
 import {
@@ -22,10 +23,30 @@ export function NotificationProvider({ children }) {
    const [items, setItems] = useState([]);
    const [unreadCount, setUnreadCount] = useState(0);
    const [loading, setLoading] = useState(false);
+   const unreadRef = useRef(0);
+
+   const refreshCount = useCallback(async () => {
+      if (!user) {
+         unreadRef.current = 0;
+         setUnreadCount(0);
+         return;
+      }
+      try {
+         const countRes = await getUnreadCount();
+         const next = countRes.data?.data?.count || 0;
+         if (next !== unreadRef.current) {
+            unreadRef.current = next;
+            setUnreadCount(next);
+         }
+      } catch {
+         /* silent — badge stays on last known values */
+      }
+   }, [user]);
 
    const refresh = useCallback(async ({ limit = 20 } = {}) => {
       if (!user) {
          setItems([]);
+         unreadRef.current = 0;
          setUnreadCount(0);
          return;
       }
@@ -35,7 +56,9 @@ export function NotificationProvider({ children }) {
             getUnreadCount(),
          ]);
          setItems(listRes.data?.data || []);
-         setUnreadCount(countRes.data?.data?.count || 0);
+         const next = countRes.data?.data?.count || 0;
+         unreadRef.current = next;
+         setUnreadCount(next);
       } catch {
          /* silent — badge stays on last known values */
       }
@@ -45,7 +68,9 @@ export function NotificationProvider({ children }) {
       setLoading(true);
       try {
          const res = await getMyNotifications(params);
-         return res.data?.data || [];
+         const list = res.data?.data || [];
+         setItems(list);
+         return list;
       } finally {
          setLoading(false);
       }
@@ -60,11 +85,15 @@ export function NotificationProvider({ children }) {
             return { ...n, isRead: true };
          }),
       );
-      if (shouldDecrement) setUnreadCount((c) => Math.max(0, c - 1));
+      if (shouldDecrement) {
+         setUnreadCount((c) => {
+            const next = Math.max(0, c - 1);
+            unreadRef.current = next;
+            return next;
+         });
+      }
       try {
          await markAsRead(id);
-         const countRes = await getUnreadCount();
-         setUnreadCount(countRes.data?.data?.count || 0);
       } catch (err) {
          await refresh();
          throw err;
@@ -73,6 +102,7 @@ export function NotificationProvider({ children }) {
 
    const markAllRead = useCallback(async () => {
       setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      unreadRef.current = 0;
       setUnreadCount(0);
       try {
          await markAllAsRead();
@@ -89,11 +119,15 @@ export function NotificationProvider({ children }) {
          wasUnread = target && !target.isRead;
          return prev.filter((n) => n._id !== id);
       });
-      if (wasUnread) setUnreadCount((c) => Math.max(0, c - 1));
+      if (wasUnread) {
+         setUnreadCount((c) => {
+            const next = Math.max(0, c - 1);
+            unreadRef.current = next;
+            return next;
+         });
+      }
       try {
          await deleteNotification(id);
-         const countRes = await getUnreadCount();
-         setUnreadCount(countRes.data?.data?.count || 0);
       } catch (err) {
          await refresh();
          throw err;
@@ -103,24 +137,26 @@ export function NotificationProvider({ children }) {
    useEffect(() => {
       if (!user) {
          setItems([]);
+         unreadRef.current = 0;
          setUnreadCount(0);
          return undefined;
       }
-      refresh();
+      // Initial: count only; list loads when panel/page opens via fetchList/refresh
+      refreshCount();
       const tick = () => {
          if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
-         refresh();
+         refreshCount();
       };
       const interval = setInterval(tick, 30000);
       const onVisible = () => {
-         if (document.visibilityState === "visible") refresh();
+         if (document.visibilityState === "visible") refreshCount();
       };
       document.addEventListener("visibilitychange", onVisible);
       return () => {
          clearInterval(interval);
          document.removeEventListener("visibilitychange", onVisible);
       };
-   }, [user, refresh]);
+   }, [user, refreshCount]);
 
    const value = useMemo(
       () => ({

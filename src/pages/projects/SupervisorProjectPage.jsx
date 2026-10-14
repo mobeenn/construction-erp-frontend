@@ -34,7 +34,7 @@ import { EmptyState, ErrorState, TableSkeleton } from "../../components/ui/State
 import { TableShell, TableWrap, Avatar } from "../../components/ui/TableShell";
 import StatusBadge from "../../components/ui/StatusBadge";
 import { Hero, KpiCard, ViewAllLink } from "../../components/dashboard/widgets";
-import { ProgressBar } from "../../components/charts/Charts";
+import { ProgressBar } from "../../components/charts/ChartPrimitives";
 import { formatMoney } from "../../utils/format";
 
 const idOf = (v) => String(v?._id || v || "");
@@ -100,21 +100,23 @@ export default function SupervisorProjectPage() {
       setProjectError("");
       (async () => {
          const out = { dash: null, progress: null, updates: [], activities: [], reports: [], team: [], attendance: [], materials: [], requests: [], issues: [], documents: [] };
-         const settle = async (fn, apply) => {
+         const settle = async (fn, apply, { raw = false } = {}) => {
             try {
                const res = await fn();
-               if (active) apply(readList(res));
+               if (active) apply(raw ? res : readList(res));
             } catch { /* section stays empty — EmptyState handles it */ }
          };
-         try {
-            const d = await getProjectDashboard(selectedId);
-            if (active) out.dash = d.data?.data || null;
-         } catch { /* optional */ }
-         try {
-            const d = await getProgressDashboard(selectedId);
-            if (active) out.progress = d.data?.data || null;
-         } catch { /* optional */ }
          await Promise.all([
+            settle(
+               async () => (await getProjectDashboard(selectedId)).data?.data || null,
+               (v) => { out.dash = v; },
+               { raw: true },
+            ),
+            settle(
+               async () => (await getProgressDashboard(selectedId)).data?.data || null,
+               (v) => { out.progress = v; },
+               { raw: true },
+            ),
             settle(() => getProgressUpdates(selectedId), (v) => { out.updates = v; }),
             settle(() => getActivities(`?project=${selectedId}`), (v) => { out.activities = v; }),
             settle(() => getDailyReports(), (v) => { out.reports = v.filter((r) => idOf(r.project) === selectedId); }),
